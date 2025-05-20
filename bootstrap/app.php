@@ -9,6 +9,7 @@ use App\Http\Middleware\SetSpatieTeamId;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\HandleCors;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -21,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         // API中间件组
         $middleware->api([
+            HandleCors::class,
             EnsureFrontendRequestsAreStateful::class,
             SetSpatieTeamId::class,
             ApiErrorHandler::class,
@@ -30,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
         
         // Web中间件组
         $middleware->web([
+            HandleCors::class,
             SetSpatieTeamId::class,
             EnsureUserHasTeam::class,
             PreventTeamLeaving::class,

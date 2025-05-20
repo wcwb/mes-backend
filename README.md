@@ -32,6 +32,10 @@
 - **权限隔离**: 基于团队的权限隔离实现
 - **API 授权**: 支持 API 路由的权限验证
 - **中间件**: 提供 `permission` 和 `role` 中间件用于访问控制
+- **团队删除功能**: 智能处理团队删除时的用户关系和权限清理
+  - 自动将"仅属于被删除团队"的用户转移到默认团队
+  - 清理团队相关的权限和角色关系
+  - 支持软删除和强制删除两种模式
 
 ## 技术架构
 
@@ -47,6 +51,10 @@
 - **PermissionController**: 权限的增删改查
 - **UserRoleController**: 用户角色的分配/移除
 - **UserPermissionController**: 用户直接权限的分配/移除、权限检查
+
+### 观察者模式
+
+- **TeamObserver**: 监听团队生命周期事件，处理团队删除时的用户关系和权限清理
 
 ## 安装与配置
 
@@ -108,6 +116,30 @@ API 文档可通过以下方式访问：
 http://localhost:8000/api/documentation
 ```
 
+## CORS 配置
+
+如果前端出现CSRF Cookie失败的问题，请检查以下配置：
+
+1. 确保`config/cors.php`中设置了正确的配置：
+```php
+'supports_credentials' => true,
+'paths' => ['api/*', '/sanctum/csrf-cookie', 'login', 'logout'],
+'allowed_origins' => ['http://localhost:3000'], // 前端域名
+```
+
+2. 前端Axios配置：
+```javascript
+axios.defaults.withCredentials = true;
+```
+
+3. 前端登录流程：
+```javascript
+// 先获取CSRF Cookie
+await axios.get('/sanctum/csrf-cookie');
+// 然后发送登录请求
+await axios.post('/api/login', credentials);
+```
+
 ## 测试
 
 运行测试套件：
@@ -115,6 +147,18 @@ http://localhost:8000/api/documentation
 ```bash
 php artisan test
 ```
+
+### 团队删除功能测试
+
+```bash
+php artisan test --filter=DeleteTeamBehaviorTest
+```
+
+## 文档
+
+详细的功能文档存放在`docs`目录：
+
+- [团队删除功能实现指南](docs/team-deletion-guide.md)
 
 ## 许可证
 

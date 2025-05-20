@@ -110,22 +110,12 @@ class AuthController extends Controller
      */
     public function user(Request $request)
     {
-        // 获取用户当前团队ID，如果没有则使用默认值(2)
-        // 默认使用团队ID=2(default团队)确保用户始终在一个有效的权限上下文中
-        $teamId = $request->user()->currentTeam ? $request->user()->currentTeam->id : 2;
-        
-        // 设置权限系统的团队ID
-        // 这是必要的步骤，确保Spatie权限系统在正确的团队上下文中运行
-        // 所有后续的权限检查(如hasPermissionTo(), hasRole()等)将基于此团队ID
-        app(PermissionRegistrar::class)->setPermissionsTeamId($teamId);
-        
-        // 确保关系被重新加载
-        // 清除用户角色和权限的缓存，确保获取最新的权限信息
-        $user = $request->user();
-        $user->unsetRelation('roles')->unsetRelation('permissions');
-        
         return response()->json([
-            'user' => $user
+            'success' => true,
+            'data' => [
+                'user' => new \App\Http\Resources\UserResource($request->user())
+            ],
+            'message' => 'Success'
         ]);
     }
 }

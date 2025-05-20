@@ -18,6 +18,13 @@ class TeamsSeeder extends Seeder
             ['email' => 'james@hyq.com'],
             [
                 'name' => 'james',
+                'surname' => 'Wang',
+                'work_no' => 'admin01',
+                'phone' => '0832609600',
+                'position' => 1,
+                'status' => 'active',
+                'is_super_admin' => true,
+                'abbreviation' => 'admin',
                 'password' => bcrypt('juWveg-kegnyq-3dewxu'),
                 'email_verified_at' => now(),
             ]
