@@ -20,22 +20,19 @@ class UserResource extends JsonResource
         if (!$this->relationLoaded('currentTeam') || !$this->relationLoaded('ownedTeams') || !$this->relationLoaded('teams')) {
             $this->load(['currentTeam', 'ownedTeams', 'teams']);
         }
-        
+
         // 重新加载关联关系，确保数据是最新的
         if ($this->relationLoaded('roles') === false || $this->relationLoaded('permissions') === false) {
             $this->load(['roles', 'permissions']);
         }
-        
-        // 设置权限系统团队上下文为用户当前团队
-        $teamId = $this->current_team_id ?? ($this->currentTeam ? $this->currentTeam->id : 2);
-        app(PermissionRegistrar::class)->setPermissionsTeamId($teamId);
-        
+
+
         // 获取用户所有权限（包括通过角色获得的权限）
         $permissions = $this->getPermissionsViaRoles()->merge($this->getDirectPermissions())->pluck('name')->unique();
-        
+
         // 获取用户角色
         $roles = $this->roles->pluck('name');
-        
+
         // 构建用户基础数据
         $userData = [
             'id' => $this->id,
@@ -63,22 +60,26 @@ class UserResource extends JsonResource
             'roles' => $roles,
             'permissions' => $permissions,
         ];
-        
+
         // 如果包含当前团队
         if ($this->whenLoaded('currentTeam')) {
             $userData['current_team'] = $this->currentTeam;
         }
-        
-        // 如果包含拥有的团队
+
+        // 如果包含拥有的团队，过滤掉 default 团队
         if ($this->whenLoaded('ownedTeams')) {
-            $userData['owned_teams'] = $this->ownedTeams;
+            $userData['owned_teams'] = $this->ownedTeams->filter(function ($team) {
+                return $team->name !== 'default';
+            })->values();
         }
-        
-        // 如果包含所属团队
+
+        // 如果包含所属团队，过滤掉 default 团队
         if ($this->whenLoaded('teams')) {
-            $userData['teams'] = $this->teams;
+            $userData['teams'] = $this->teams->filter(function ($team) {
+                return $team->name !== 'default';
+            })->values();
         }
-        
+
         return $userData;
     }
-} 
+}

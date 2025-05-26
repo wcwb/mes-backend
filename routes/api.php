@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\UserPermissionController;
 use App\Http\Controllers\Api\UserRoleController;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\TeamMemberController;
+use App\Http\Controllers\Api\SwitchTeamController;
+use App\Http\Controllers\Api\TeamController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,14 +36,20 @@ Route::middleware('auth:sanctum')->group(function () {
     // 订单路由
     Route::get('/orders', [OrdersController::class, 'index']);
     
+    Route::middleware('ensure.team')->group(function () {
+        Route::apiResource('teams', TeamController::class);
+    });
+
     // 团队管理路由
-    Route::prefix('teams')->group(function () {
+    Route::prefix('teams-member')->group(function () {
         // 团队成员管理
         Route::get('/{teamId}/members', [TeamMemberController::class, 'index'])->name('api.team-members.index');
         Route::post('/{teamId}/members', [TeamMemberController::class, 'store'])->name('api.team-members.store');
         Route::put('/{teamId}/members/{userId}', [TeamMemberController::class, 'update'])->name('api.team-members.update');
         Route::delete('/{teamId}/members/{userId}', [TeamMemberController::class, 'destroy'])->name('api.team-members.destroy');
     });
+
+    Route::put('/switch-team', [SwitchTeamController::class, 'update']);
     
     // 角色管理
     Route::apiResource('roles', RoleController::class);
@@ -74,7 +82,7 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json([
             'success' => true,
             'message' => '您成功访问了受保护的资源',
-            'user' => auth()->user()->only(['id', 'name', 'email']),
+            'user' => request()->user()->only(['id', 'name', 'email']),
             'is_super_admin' => \App\Helpers\PermissionHelper::isSuperAdmin(),
         ]);
     })->middleware('permission:不存在的权限'); // 使用一个不存在的权限进行测试

@@ -37,14 +37,13 @@ class AuthController extends Controller
         // 获取default团队(ID=2)
         // 注意：此团队在初始化时不分配任何角色和权限，保证新用户没有默认权限
         $defaultTeam = Jetstream::newTeamModel()->find(2);
-        
+
         // 如果新用户没有分配到任何团队，则添加到default团队
         if ($defaultTeam && $user->current_team_id == null) {
             // 检查用户尚未分配团队时才分配default团队
             // 设置default团队为用户的当前团队，用户登录后将默认使用此团队的权限上下文
             // 由于default团队没有初始角色和权限，新用户将没有任何系统权限，需要管理员分配
             $user->teams()->attach($defaultTeam);
-            
         }
 
         $deviceName = $request->device_name ?? $request->userAgent() ?? '未知设备';
@@ -81,6 +80,7 @@ class AuthController extends Controller
 
         $deviceName = $request->device_name ?? $request->userAgent() ?? '未知设备';
         $token = $user->createToken($deviceName)->plainTextToken;
+        $user->online(true);
 
         return response()->json([
             'token' => $token,
@@ -97,7 +97,10 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $request->user()->tokens()->delete();
+        $request->user()->update([
+            'online' => false,
+        ]);
 
         return response()->json(['message' => '已成功登出']);
     }

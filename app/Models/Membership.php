@@ -15,6 +15,11 @@ class Membership extends Pivot
      * @var string
      */
     protected $table = 'team_user';
+
+    protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
     
     /**
      * 需要类型转换的属性

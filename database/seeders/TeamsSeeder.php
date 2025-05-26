@@ -13,60 +13,94 @@ class TeamsSeeder extends Seeder
      */
     public function run(): void
     {
-        // 获取一个管理员用户（如果不存在则创建一个）
-        $adminUser = User::firstOrCreate(
-            ['email' => 'james@hyq.com'],
+        $teams = [
             [
-                'name' => 'james',
-                'surname' => 'Wang',
-                'work_no' => 'admin01',
-                'phone' => '0832609600',
-                'position' => 1,
-                'status' => 'active',
-                'is_super_admin' => true,
-                'abbreviation' => 'admin',
-                'password' => bcrypt('juWveg-kegnyq-3dewxu'),
-                'email_verified_at' => now(),
-            ]
-        );
-        
-        // 创建admin团队（ID=1）
+                'name' => 'sewing',
+                'personal_team' => false,
+                'description' => 'sewing production team',
+                'user_id' => 1,
+            ],
+            [
+                'name' => 'office',
+                'personal_team' => false,
+                'description' => 'office team',
+                'user_id' => 1,
+            ],
+            [
+                'name' => 'cutting',
+                'personal_team' => false,
+                'description' => 'cutting production team',
+                'user_id' => 1,
+            ],
+            [
+                'name' => 'packing',
+                'personal_team' => false,
+                'description' => 'packing production team',
+                'user_id' => 1,
+            ],
+            [
+                'name' => 'warehouse',
+                'personal_team' => false,
+                'description' => 'warehouse team',
+                'user_id' => 1,
+            ],
+            [
+                'name' => 'quality',
+                'personal_team' => false,
+                'description' => 'quality control team',
+                'user_id' => 1,
+            ],
+            [
+                'name' => 'sales',
+                'personal_team' => false,
+                'description' => 'sales team',
+                'user_id' => 1,
+            ],
+            [
+                'name' => 'finance',
+                'personal_team' => false,
+                'description' => 'finance team',
+                'user_id' => 1,
+            ],
+            [
+                'name' => 'hr',
+                'personal_team' => false,
+                'description' => 'hr team',
+                'user_id' => 1,
+            ],
+            [
+                'name' => 'logistics',
+                'personal_team' => false,
+                'description' => 'logistics team',
+                'user_id' => 1,
+            ],
+        ];
+
+
+        // 创建admin团队
         $adminTeam = Jetstream::newTeamModel()->firstOrCreate(
-            ['id' => 1],
+            ['name' => 'admin'],
             [
-                'user_id' => $adminUser->id,
+                'user_id' => 1,
                 'name' => 'admin',
                 'personal_team' => false,
+                'description' => 'administrator team for system',
             ]
         );
-        
-        // 创建default团队（ID=2）
+
+        // 创建default团队
         $defaultTeam = Jetstream::newTeamModel()->firstOrCreate(
-            ['id' => 2],
+            ['name' => 'default'],
             [
-                'user_id' => $adminUser->id,
+                'user_id' => 1,
                 'name' => 'default',
                 'personal_team' => false,
+                'description' => 'default team for users are not belong to other team',
             ]
         );
-        
-        // 确保用户属于这些团队
-        if (!$adminUser->belongsToTeam($adminTeam)) {
-            $adminUser->teams()->attach($adminTeam);
+
+        foreach ($teams as $team) {
+            $team = Jetstream::newTeamModel()->create($team);
         }
-        
-        if (!$adminUser->belongsToTeam($defaultTeam)) {
-            $adminUser->teams()->attach($defaultTeam);
-        }
-        
-        // 设置admin团队为当前团队
-        if (!$adminUser->current_team_id) {
-            $adminUser->current_team_id = $adminTeam->id;
-            $adminUser->save();
-        }
-        
-        $this->command->info('特殊团队创建成功！');
-        $this->command->info('团队 1: admin');
-        $this->command->info('团队 2: default');
     }
-} 
+}

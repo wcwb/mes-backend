@@ -14,9 +14,9 @@ use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        commands: __DIR__.'/../routes/console.php',
-        api: __DIR__.'/../routes/api.php',
+        web: __DIR__ . '/../routes/web.php',
+        commands: __DIR__ . '/../routes/console.php',
+        api: __DIR__ . '/../routes/api.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
@@ -29,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             EnsureUserHasTeam::class,
             PreventTeamLeaving::class,
         ]);
-        
+
         // Web中间件组
         $middleware->web([
             HandleCors::class,
@@ -37,17 +37,18 @@ return Application::configure(basePath: dirname(__DIR__))
             EnsureUserHasTeam::class,
             PreventTeamLeaving::class,
         ]);
-        
+
         // 添加全局中间件
         $middleware->append(SetSpatieTeamId::class);
-        
+
         // 优先级高的中间件
         $middleware->prepend(ApiErrorHandler::class);
-        
+
         // 注册路由中间件别名
         $middleware->alias([
             'role' => CheckRole::class,
             'permission' => CheckPermission::class,
+            'ensure.team' => EnsureUserHasTeam::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
@@ -60,35 +61,35 @@ return Application::configure(basePath: dirname(__DIR__))
                         'errors' => $e->errors(),
                     ], $e->status);
                 }
-                
+
                 if ($e instanceof \Illuminate\Auth\AuthenticationException) {
                     return response()->json([
                         'message' => __('未授权，请先登录'),
                     ], 401);
                 }
-                
+
                 if ($e instanceof \Illuminate\Auth\Access\AuthorizationException) {
                     return response()->json([
                         'message' => $e->getMessage() ?: __('没有权限执行此操作'),
                     ], 403);
                 }
-                
+
                 if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
                     return response()->json([
                         'message' => __('请求的资源不存在'),
                     ], 404);
                 }
-                
+
                 // 生产环境不暴露详细错误
                 $message = config('app.debug')
                     ? __('服务器错误: :error', ['error' => $e->getMessage()])
                     : __('处理请求时发生错误，请稍后重试');
-                    
+
                 return response()->json([
                     'message' => $message,
                 ], 500);
             }
-            
+
             return null;
         });
     })->create();

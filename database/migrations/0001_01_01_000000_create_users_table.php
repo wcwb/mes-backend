@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->index();
             $table->string('name');
+            $table->string('description')->nullable();
             $table->boolean('personal_team');
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('team_user', function (Blueprint $table) {
@@ -25,6 +27,7 @@ return new class extends Migration
             $table->foreignId('user_id');
             $table->string('role')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->unique(['team_id', 'user_id']);
         });
@@ -35,48 +38,48 @@ return new class extends Migration
             $table->string('email');
             $table->string('role')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->unique(['team_id', 'email']);
         });
 
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-			$table->string('work_no', 10)->unique()->index('work_no');
-			$table->string('abbreviation', 10)->nullable();
-			$table->string('phone', 30)->unique()->required();
-			$table->string('email')->unique()->nullable();
-			$table->string('name', 50);
-			$table->string('surname', 50);
-			$table->foreignId('current_team_id')->nullable()->constrained('teams')->nullOnDelete();
-			$table->tinyInteger('position');
-			$table->enum('status', ['active', 'suspended', 'disabled'])->default('active');
-			$table->boolean('online')->default(0); // "0" offline, "1" online
+            $table->string('work_no', 10)->unique()->index('work_no');
+            $table->string('abbreviation', 10)->nullable();
+            $table->string('phone', 30)->unique()->required();
+            $table->string('email')->unique()->nullable();
+            $table->string('name', 50);
+            $table->string('surname', 50);
+            $table->foreignId('current_team_id')->nullable();
+            $table->tinyInteger('position');
+            $table->enum('status', ['active', 'suspended', 'disabled'])->default('active');
+            $table->boolean('online')->default(0); // "0" offline, "1" online
             $table->boolean('is_super_admin')->default(false);
-			$table->date('commencement_date')->nullable();
-			$table->string('password');
-			$table->string('fingerprint')->nullable();
-			$table->string('avatar_url')->nullable();
+            $table->date('commencement_date')->nullable();
+            $table->string('password');
+            $table->string('fingerprint')->nullable();
+            $table->string('avatar_url')->nullable();
             $table->timestamp('last_login_at')->nullable();
+            $table->timestamp('last_logout_at')->nullable();
             $table->string('last_login_ip', 45)->nullable();
-            $table->string('lang', 10)->nullable();
-			$table->timestamp('cell_verified_at')->nullable();
-			$table->tinyInteger('cell_attempts_left')->default(0);
-			$table->timestamp('cell_verify_code_sent_at')->nullable();
-			$table->timestamp('cell_last_attempt_date')->nullable();
-			$table->string('cell_verify_code')->nullable();
-			$table->timestamp('email_verified_at')->nullable();
-			$table->text('two_factor_secret')->nullable();
-			$table->text('two_factor_recovery_codes')->nullable();
-			$table->timestamp('two_factor_confirmed_at')->nullable();
+            $table->timestamp('cell_verified_at')->nullable();
+            $table->tinyInteger('cell_attempts_left')->default(0);
+            $table->timestamp('cell_verify_code_sent_at')->nullable();
+            $table->timestamp('cell_last_attempt_date')->nullable();
+            $table->string('cell_verify_code')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->text('two_factor_secret')->nullable();
+            $table->text('two_factor_recovery_codes')->nullable();
+            $table->timestamp('two_factor_confirmed_at')->nullable();
             $table->string('timezone', 50)->nullable();
             $table->text('remarks')->nullable();
-			$table->rememberToken();
-			$table->timestamp('terminated_at')->nullable();
-			$table->string('created_by')->nullable();
-			$table->string('updated_by')->nullable();
-			$table->timestamp('last_login')->nullable();
-			$table->timestamps();
-			$table->softDeletes();
+            $table->rememberToken();
+            $table->timestamp('terminated_at')->nullable();
+            $table->string('created_by')->nullable();
+            $table->string('updated_by')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
